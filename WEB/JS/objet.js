@@ -1,3 +1,22 @@
+fetch(../PHP/objet.php)
+  .then(r => r.json())
+  .then(r => {
+
+  })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var mymap = L.map('mapid').setView([47,2], 5);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
