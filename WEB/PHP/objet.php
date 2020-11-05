@@ -2,6 +2,7 @@
 $link = mysqli_connect("localhost:3306","root","root","objet");
 if (!$link) {
   die('Erreur de connexion');
+}
 
 if (!isset($_POST["id"])) {
   $requete = "SELECT id , nom , latitude , longitude , zoom_min , icone , type , indice , depart FROM objet ORDER BY id";
@@ -26,15 +27,15 @@ else {
 }
 
 foreach ($array as $objet) {
-  if (!is_int($objet["latitude"])){
-    $objet["latitude"] = intval($objet["latitude"]);
+  if (!is_float($objet["latitude"])){
+    $objet["latitude"] = floatval($objet["latitude"]);
   }
-  if (!is_int($objet["longitude"])){
-    $objet["longitude"] = intval($objet["longitude"]);
+  if (!is_float($objet["longitude"])){
+    $objet["longitude"] = floatval($objet["longitude"]);
   }
-  if (!is_int($objet["zoom_min"])){
-    $objet["zoom_min"] = intval($objet["zoom_min"]);
+  if (!is_float($objet["zoom_min"])){
+    $objet["zoom_min"] = floatval($objet["zoom_min"]);
   }
 }
-echo json_encode($array);
+echo json_encode($array,JSON_NUMERIC_CHECK);
 ?>

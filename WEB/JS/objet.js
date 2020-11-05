@@ -46,4 +46,3 @@ function action(id) {
     body : data
   })
 }
-
