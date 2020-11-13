@@ -3,6 +3,8 @@ var afficher = L.featureGroup();
 var zoom_aff = [];
 var id = [];
 var recuperable = document.getElementById("recuperable");
+var selection = [];
+var id_selection = 0;
 
 function suivant(enCours, suivant, limite) {
   if (enCours.value.length == limite)
@@ -13,19 +15,38 @@ fetch("../PHP/objet.php")
   .then(r => r.json())
   .then(r => {
     for (var i = 0 ; i < r.length; i++) {
-      var imageUrl = r[i]["icone"];
-      var imageBounds = [[r[i]["latitude"], r[i]["longitude"]], [r[i]["latitude"]+0.002, r[i]["longitude"]+0.002]];
-      image = L.imageOverlay(imageUrl, imageBounds,{interactive : true});
       if (r[i]["depart"]==1) {
-        afficher.addLayer(image);
-        zoom_aff.push(r[i]["zoom_min"]);
-        id.push(r[i]["id"]);
+        ajout_image (r[i]["icone"] , r[i]["latitude"] , r[i]["longitude"] , r[i]["latitude_2"] , r[i]["longitude_2"] , r[i]["zoom_min"] , r[i]["id"])
       }
     }
-    mymap.setView([r[2]["latitude"]+0.001,r[2]["longitude"]+0.001], 15);
+    mymap.setView([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2], 15);
     affichage(mymap , afficher , zoom_aff , id);
     mymap.addEventListener("zoomend",function() {affichage()} , true);
   })
+
+function ajout_image (icone , latitude , longitude , latitude_2 , longitude_2 , zoom_min , id_img) {
+  var imageUrl = icone;
+  var imageBounds = [[latitude, longitude], [latitude_2, longitude_2]];
+  image = L.imageOverlay(imageUrl, imageBounds,{interactive : true});
+  image.addEventListener("click" , function() {action(this , event)});
+  afficher.addLayer(image);
+  zoom_aff.push(zoom_min);
+  id.push(id_img);
+  return image;
+}
+
+function suppression_image (image) {
+  var liste = afficher.getLayers();
+  for (var i = 0 ; i < liste.length; i++) {
+    if (image == liste[i]) {
+      id.splice(i, 1);
+      zoom_aff.splice(i,1);
+      break;
+    }
+  }
+  afficher.removeLayer(image);
+}
+
 
 function affichage() {
   var liste = afficher.getLayers();
@@ -38,7 +59,6 @@ function affichage() {
   for (var i = 0 ; i < liste.length; i++) {
     if (mymap.getZoom() >= zoom_aff[i]) {
       liste[i].addTo(mymap);
-      liste[i].addEventListener("click",function() {action(this , afficher , zoom_aff , id , event)});
     }
   }
 }
@@ -61,21 +81,25 @@ function action(image , e) {
     .then(r => {
       if (r[0]["type"] == "bloque_cadenas") {
         var texte = "<b>Bloqué par un code</b><br>Indice :<br>" + r[0]["indice"] + "<br>Entrez le code ici :<br><form id='form' action='#' name='code' method='post'> <input type='text' size='1' name='code1' id='1' maxlength='1' onKeyUp='suivant(this,\"code2\", 1)'> <input type='text' size='1' name='code2' id='2' maxlength='1' onKeyUp='suivant(this,\"code3\", 1)'> <input type='text' size='1' name='code3' id='3' maxlength='1' onKeyUp='suivant(this,\"code4\", 1)'> <input type='text' size='1' name='code4' id='4' maxlength='1' onKeyUp='suivant(this,\"envoi\", 1)'> <input type='submit' name='envoi' id='envoi' value='Valider'></form>"
-        var popup = image.bindPopup(texte).openPopup([r[0]["latitude"]+0.001,r[0]["longitude"]+0.001]);
-        cadenas(r[0]["bloque_par"] , popup , texte , r[0]["suivant"] , image);
+        var popup = image.bindPopup(texte).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
+        cadenas(r[0]["bloque_par"] , texte , r[0]["suivant"] , image);
       }
       if (r[0]["type"] == "bloque_cle") {
-        var texte = "<b>Bloqué par une clé</b><br>Indice :<br>" + r[0]["indice"]
-        var popup = image.bindPopup(texte).openPopup([r[0]["latitude"]+0.001,r[0]["longitude"]+0.001]);
-        cle();
+        cle(image , r[0]["indice"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["bloque_par"] , r[0]["suivant"]);
       }
       if (r[0]["type"] == "recuperable") {
         recuperer(image , r[0]["icone"]);
       }
+      if (r[0]["type"] == "inutile") {
+        var popup = image.bindPopup(r[0]["indice"]).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
+      }
+      if (r[0]["type"] == "code") {
+        var popup = image.bindPopup("Le code est " + r[0]["indice"]).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
+      }
     })
 }
 
-function cadenas(bloque_par , popup , texte , suivant , image) {
+function cadenas(bloque_par , texte , suivant , image) {
   var data = new FormData();
   data.append("ID",bloque_par);
   fetch("../PHP/objet.php", {
@@ -85,11 +109,11 @@ function cadenas(bloque_par , popup , texte , suivant , image) {
     .then(r => r.json())
     .then(r => {
       var form = document.getElementById("form");
-      form.addEventListener("submit" , function() {verif(r[0]["indice"] , popup , texte , event , suivant , image)});
+      form.addEventListener("submit" , function() {verif(r[0]["indice"] , texte , event , suivant , image)});
     })
 }
 
-function verif(code , popup , texte , e , suivant , image) {
+function verif(code , texte , e , suivant , image) {
   e.preventDefault();
   var code1 = form.elements["code1"];
   var code2 = form.elements["code2"];
@@ -105,60 +129,94 @@ function verif(code , popup , texte , e , suivant , image) {
     })
     .then(r => r.json())
     .then(r => {
-      var liste = afficher.getLayers();
-      for (var i = 0 ; i < liste.length; i++) {
-        if (image == liste[i]) {
-          id.splice(i, 1);
-          zoom_aff.splice(i,1);
-          break;
-        }
-      }
-      afficher.removeLayer(image);
-      var imageUrl = r[0]["icone"];
-      var imageBounds = [[r[0]["latitude"], r[0]["longitude"]], [r[0]["latitude"]+0.002, r[0]["longitude"]+0.002]];
-      newimage = L.imageOverlay(imageUrl, imageBounds,{interactive : true});
-      afficher.addLayer(newimage);
-      zoom_aff.push(r[i]["zoom_min"]);
-      id.push(r[i]["id"]);
+      suppression_image (image)
+      img = ajout_image (r[0]["icone"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["zoom_min"] , r[0]["id"])
       affichage();
 
       if (r[0]["type"] == "fin") {
         texte = r[0]["indice"] + "<form id='form' action='../PHP/resultat.php' name='fin' method='post'><input type='submit' name=terminer' value='Terminer'></form>"
-        var popup = image.bindPopup(texte).openPopup([r[0]["latitude"]+0.001,r[0]["longitude"]+0.001]);
+        var liste = afficher.getLayers();
+        var popup = img.bindPopup(texte).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
       }
     })
   }
   else {
-    popup.setContent(texte + "<br><b>Code faux ! Veuillez ressayer.</b>")
+    image["_popup"].setContent(texte + "<br><b>Code faux ! Veuillez ressayer.</b>")
     var form2 = document.getElementById("form");
-    form2.addEventListener("submit" , function() {verif(code , popup , texte , event , suivant , afficher , zoom_aff , id , image)});
+    form2.addEventListener("submit" , function() {verif(code , texte , event , suivant , image)});
   }
 }
 
 
-function cle() {
-
+function cle(image , indice , latitude , longitude , latitude_2 , longitude_2 , bloque_par , suivant) {
+  if (id_selection == bloque_par){
+    var data = new FormData();
+    data.append("ID",suivant);
+    fetch("../PHP/objet.php", {
+      method: "POST",
+      body : data
+    })
+    .then(r => r.json())
+    .then(r => {
+      suppression_image (image)
+      ajout_image (r[0]["icone"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["zoom_min"] , r[0]["id"]);
+      recuperable.removeChild(selection[0]);
+      id_selection = 0;
+      var data = new FormData();
+      data.append("ID",r[0]["suivant"]);
+      fetch("../PHP/objet.php", {
+        method: "POST",
+        body : data
+      })
+      .then(r => r.json())
+      .then(r => {
+        ajout_image (r[0]["icone"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["zoom_min"] , r[0]["id"])
+        affichage();
+      })
+    })
+  }
+  else {
+    var texte = "<b>Bloqué par une clé</b><br>Indice :<br>" + indice
+    var popup = image.bindPopup(texte).openPopup([(latitude+latitude_2)/2,(longitude+longitude_2)/2]);
+  }
 }
 
 
 function recuperer(image , icone) {
   var img = document.createElement("img");
   img.src = icone;
-  img.addEventListener("click" , selectionner);
-  recuperable.appendChild(img);
-  console.log(rec);
   var liste = afficher.getLayers();
   for (var i = 0 ; i < liste.length; i++) {
     if (image == liste[i]) {
-      id.splice(i, 1);
-      zoom_aff.splice(i,1);
+      var id_img = id[i];
       break;
     }
   }
-  afficher.removeLayer(image);
+  img.addEventListener("click" , function() {selectionner(this , id_img)});
+  recuperable.appendChild(img);
+  suppression_image(image);
   affichage();
 }
 
-function selectionner() {
-  console.log("hello");
+function selectionner(img , id_img) {
+  for (var i = 0 ; i < selection.length; i++) {
+    selection[i].classList.remove("selection");
+    selection[i].removeEventListener("click" , function() {deselectionner(this , id_img)});
+    selection[i].addEventListener("click" , function() {selectionner(this , id_img)});
+    selection.splice(selection[i],1);
+    id_selection = 0;
+  }
+  selection.push(img);
+  id_selection = id_img;
+  img.classList.add("selection");
+  img.removeEventListener("click" , function() {selectionner(this , id_img)});
+  img.addEventListener("click" , function() {deselectionner(this , id_img)});
+}
+
+function deselectionner(img , id_img) {
+  img.classList.remove("selection");
+  img.removeEventListener("click" , function() {deselectionner(this , id_img)});
+  img.addEventListener("click" , function() {selectionner(this , id_img)});
+  selection.splice(img,1);
+  id_selection = 0;
 }
