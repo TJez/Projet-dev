@@ -1,0 +1,51 @@
+*{
+  box-sizing: border-box;
+}
+
+html{
+  font-family:comic sans MS,century gothic;
+  background-color:LightGray;
+}
+
+body{
+  margin: 0px 0px 0px 0px;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: 1fr 500px 80px;
+}
+
+h1{
+  grid-column: 2;
+  grid-row: 1;
+  text-align: center;
+  font-size: 4em;
+  margin-top: 40px;
+}
+
+#presentation{
+  grid-column: 2;
+  grid-row: 2;
+  text-align: center;
+  font-size: 2em;
+  width: 80%;
+  margin: auto;
+}
+
+.formulaire{
+  grid-column: 2;
+  grid-row: 3;
+  text-align: center;
+}
+
+#tour{
+  grid-column: 3;
+  grid-row: 1 / 4;
+  height: 100%
+}
+
+#map{
+  grid-row: 1 / 4;
+  grid-column: 1;
+  height:100%
+}

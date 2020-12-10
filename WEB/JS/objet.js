@@ -6,6 +6,7 @@ var recuperable = document.getElementById("recuperable");
 var selection = [];
 var id_selection = 0;
 var depart = new Date().getTime();
+time();
 
 function suivant(enCours, suivant, limite) {
   if (enCours.value.length == limite)
@@ -361,6 +362,7 @@ function verif(code , texte , e , suivant , image , click) {
 
       if (r[0]["type"] == "information") {
         var obj_suivant = r[0]["suivant"].split(",");
+        img_elem = r[0];
         for (var i=0 ; i<obj_suivant.length ; i++) {
           var data = new FormData();
           data.append("ID",obj_suivant[i]);
@@ -372,18 +374,20 @@ function verif(code , texte , e , suivant , image , click) {
           .then(r => {
             ajout_image (r[0]["icone"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["zoom_min"] , r[0]["id"]);
             affichage();
+            if (i == obj_suivant.length) {
+              if (img_elem["temps2"] == 0) {
+                var popup = img.bindPopup(img_elem["indice"]).openPopup([(img_elem["latitude"]+img_elem["latitude_2"])/2,(img_elem["longitude"]+img_elem["longitude_2"])/2]);
+              }
+              else {
+                image.removeEventListener("click" , click);
+                var date = new Date().getTime();
+                var fin = date + img_elem["temps2"] * 60 * 1000;
+                var popup = img.bindPopup(img_elem["indice"]+"<br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)").openPopup([(img_elem["latitude"]+img_elem["latitude_2"])/2,(img_elem["longitude"]+img_elem["longitude_2"])/2]);
+                var click2 = function click() {action2(this , event , click2 , fin)};
+                image.addEventListener("click" , click2);
+              }
+            }
           })
-        }
-        if (r[0]["temps2"] == 0) {
-          var popup = img.bindPopup(r[0]["indice"]).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
-        }
-        else {
-          image.removeEventListener("click" , click);
-          var date = new Date().getTime();
-          var fin = date + r[0]["temps2"] * 60 * 1000;
-          var popup = img.bindPopup(r[0]["indice"]+"<br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)").openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
-          var click2 = function click() {action2(this , event , click2 , fin)};
-          image.addEventListener("click" , click2);
         }
       }
       else {
@@ -408,7 +412,6 @@ function verif(code , texte , e , suivant , image , click) {
   }
 }
 
-
 function cle(image , indice , latitude , longitude , latitude_2 , longitude_2 , bloque_par , suivant , temps2 , click = 0) {
   if (id_selection == bloque_par){
     var data = new FormData();
@@ -423,6 +426,7 @@ function cle(image , indice , latitude , longitude , latitude_2 , longitude_2 , 
       var img = ajout_image (r[0]["icone"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["zoom_min"] , r[0]["id"]);
       recuperable.removeChild(selection[0]);
       id_selection = 0;
+      var img_elem = r[0]
       if (r[0]["type"] == "information") {
         var obj_suivant = r[0]["suivant"].split(",");
         for (var i=0 ; i<obj_suivant.length ; i++) {
@@ -436,18 +440,20 @@ function cle(image , indice , latitude , longitude , latitude_2 , longitude_2 , 
           .then(r => {
             ajout_image (r[0]["icone"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["zoom_min"] , r[0]["id"]);
             affichage();
+            if (i == obj_suivant.length) {
+              if (img_elem["temps2"] == 0) {
+                var popup = img.bindPopup(img_elem["indice"]).openPopup([(img_elem["latitude"]+img_elem["latitude_2"])/2,(img_elem["longitude"]+img_elem["longitude_2"])/2]);
+              }
+              else {
+                image.removeEventListener("click" , click);
+                var date = new Date().getTime();
+                var fin = date + img_elem["temps2"] * 60 * 1000;
+                var popup = img.bindPopup(img_elem["indice"]+"<br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)").openPopup([(img_elem["latitude"]+img_elem["latitude_2"])/2,(img_elem["longitude"]+img_elem["longitude_2"])/2]);
+                var click2 = function click() {action2(this , event , click2 , fin)};
+                image.addEventListener("click" , click2);
+              }
+            }
           })
-        }
-        if (r[0]["temps2"] == 0) {
-          var popup = img.bindPopup(r[0]["indice"]).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
-        }
-        else {
-          image.removeEventListener("click" , click);
-          var date = new Date().getTime();
-          var fin = date + r[0]["temps2"] * 60 * 1000;
-          var popup = img.bindPopup(r[0]["indice"]+"<br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)").openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
-          var click2 = function click() {action2(this , event , click2 , fin)};
-          image.addEventListener("click" , click2);
         }
       }
       else {
@@ -536,4 +542,25 @@ function recuperer_texte(image , icone , indice) {
 function info(indice) {
   para = document.getElementById("indice_p");
   para.innerHTML = indice;
+}
+
+function time() {
+  temps_aff = document.getElementById("temps")
+  var actuel = new Date().getTime();
+  var ecoule = Math.trunc((actuel - depart)/1000);
+  var minute=Math.trunc(ecoule/60);
+  var heure=Math.trunc(minute/60);
+  var seconde=ecoule-minute*60;
+  minute=minute-heure*60;
+  if (heure<10){
+    heure="0" + heure;
+  }
+  if (minute<10){
+    minute="0" + minute;
+  }
+  if (seconde<10){
+    seconde="0" + seconde;
+  }
+  temps_aff.innerHTML= heure+":"+minute+":"+seconde
+  setTimeout(time , 1000);
 }
