@@ -28,7 +28,7 @@
       if ($seconde<10){
         $seconde="0".$seconde;
       }
-      $temps=$heure.":".$minute.".".$seconde;
+      $temps=$heure.":".$minute.":".$seconde;
 
       $nom = $_POST["nom"];
       $request = "INSERT INTO score VALUES ('".$nom."','".$temps."')";
