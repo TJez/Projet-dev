@@ -1,0 +1,96 @@
+*{
+  box-sizing: border-box;
+}
+
+html{
+  font-family:comic sans MS,century gothic;
+  background-color:LightGray;
+}
+
+body{
+  weight: 100vh;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns:1fr 600px 1fr;
+  grid-template-rows:20px 140px 100px 155px 300px;
+}
+
+h1{
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 4em;
+}
+
+.parag{
+  grid-column: 2;
+  grid-row: 3;
+  text-align: center;
+  font-size: 2em;
+}
+
+#score{
+  display: inline-block;
+  grid-column: 2;
+  grid-row: 5;
+  margin: auto;
+  margin-top: 0;
+  width: 300px;
+  height: 300px;
+  background-color: Grey;
+  position: relative;
+  border: solid 2px black;
+  border-radius: 15px;
+}
+.titre{
+  text-align: center;
+  font-size: 1.5em
+}
+
+table{
+  margin: 0 auto;
+}
+
+.tab{
+  font-size: 1.3em;
+  text-align: center;
+}
+
+td,th{
+  padding-right: 10px;
+}
+
+.blanc{
+  grid-column: 1;
+  grid-row: 2;
+  height: 200px;
+  width: 350px;
+  margin-top: 20px;
+}
+
+.michel{
+  grid-column: 3;
+  grid-row: 3;
+  height: 200px;
+  width: 350px;
+  margin: auto;
+}
+
+.code{
+  grid-row: 4;
+  grid-column: 3;
+  height: 200px;
+  width: 350px;
+  margin: auto;
+  margin-top: 200px;
+}
+
+.coffre{
+  grid-column: 1;
+  grid-row: 4;
+  margin-top: 80px;
+  margin-left: 60px;
+  height: 270px;
+  width: 350px;
+}

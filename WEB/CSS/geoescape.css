@@ -1,50 +1,52 @@
+
 *{
   box-sizing: border-box;
 }
 
 html{
   font-family:comic sans MS,century gothic;
-  background-color:#52280E;
+  background-color:LightGray;
 }
 
 body{
-  weight: 100vh;
-  min-height: 100vh;
+  margin: 0px 0px 0px 0px;
+  height: 100vh;
   display: grid;
-  grid-template-columns: 20px auto 1fr auto 20px;
-  grid-template-rows: auto 150px 200px 150px 50px;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: 1fr 500px 80px;
 }
 
 h1{
-  grid-column: 3;
+  grid-column: 2;
   grid-row: 1;
   text-align: center;
-  font-size: 4em
+  font-size: 4em;
+  margin-top: 40px;
 }
 
 #presentation{
-  grid-column: 3;
-  grid-row: 2 / 4;
-  text-align: center;
-  font-size: 2em
-}
-
-#boussole{
   grid-column: 2;
-  grid-row: 2 / 4;
-  height: 350px;
-  weight: 350px;
-}
-
-#cle{
-  grid-column: 4;
-  grid-row: 3 / 5;
-  height: 350px;
-  weight: 350px;
+  grid-row: 2;
+  text-align: center;
+  font-size: 2em;
+  width: 80%;
+  margin: auto;
 }
 
 .formulaire{
-  grid-column: 3;
-  grid-row: 4 / 6;
+  grid-column: 2;
+  grid-row: 3;
   text-align: center;
+}
+
+#tour{
+  grid-column: 3;
+  grid-row: 1 / 4;
+  height: 100%
+}
+
+#map{
+  grid-row: 1 / 4;
+  grid-column: 1;
+  height:100%
 }
