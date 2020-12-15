@@ -1,3 +1,4 @@
+// Définition des variables globales
 var mymap = L.map('map').setView([47,2], 8);
 var afficher = L.featureGroup();
 var zoom_aff = [];
@@ -6,13 +7,9 @@ var recuperable = document.getElementById("recuperable");
 var selection = [];
 var id_selection = 0;
 var depart = new Date().getTime();
-time();
+time();  // Lancement du chrono
 
-function suivant(enCours, suivant, limite) {
-  if (enCours.value.length == limite)
-    document.code[suivant].focus();
-  }
-
+// Récupération des premières images à afficher dès l'ouverture de la page
 fetch("../PHP/objet.php")
   .then(r => r.json())
   .then(r => {
@@ -26,6 +23,7 @@ fetch("../PHP/objet.php")
     mymap.addEventListener("zoomend",function() {affichage()} , true);
   })
 
+// Fonction permettant d'ajouter des images sur la carte
 function ajout_image (icone , latitude , longitude , latitude_2 , longitude_2 , zoom_min , id_img) {
   var imageUrl = icone;
   var imageBounds = [[latitude, longitude], [latitude_2, longitude_2]];
@@ -38,6 +36,7 @@ function ajout_image (icone , latitude , longitude , latitude_2 , longitude_2 , 
   return image;
 }
 
+// Fonction permettant de supprimer des images sur la carte
 function suppression_image (image) {
   var liste = afficher.getLayers();
   for (var i = 0 ; i < liste.length; i++) {
@@ -50,7 +49,7 @@ function suppression_image (image) {
   afficher.removeLayer(image);
 }
 
-
+// Fonction permettant d'actualiser la carte avec la nouvelle liste d'image à afficher
 function affichage() {
   var liste = afficher.getLayers();
   mymap.eachLayer(function(layer){
@@ -66,6 +65,7 @@ function affichage() {
   }
 }
 
+// Fonction qui exécute l'action qui doit être lancé selon le type de l'image au moment où l'on clique dessus
 function action(image , e , click) {
   var liste = afficher.getLayers();
   for (var i = 0 ; i < liste.length; i++) {
@@ -119,6 +119,13 @@ function action(image , e , click) {
     })
 }
 
+//Fonction permettant le passage d'une zone de texte à une autre automatiquement lors de l'écriture d'un code
+function suivant(enCours, suivant, limite) {
+  if (enCours.value.length == limite)
+    document.code[suivant].focus();
+  }
+
+// Fonction permettant d'afficher le temps restant avant un deuxième indice
 function action2(image , event , click2 , fin) {
   var liste = afficher.getLayers();
   for (var i = 0 ; i < liste.length; i++) {
@@ -154,11 +161,11 @@ function action2(image , event , click2 , fin) {
           cle(image , r[0]["indice"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["bloque_par"] , r[0]["suivant"] , r[0]["temps2"]);
         }
         else if (fin-date > 0){
-          var texte = "<b>Bloqué par une clé</b><br>Indice :<br>" + r[0]["indice"] + "<br><br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)";
+          var texte = "<b>Bloqué par un objet</b><br>Indice :<br>" + r[0]["indice"] + "<br><br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)";
           var popup = image.bindPopup(texte).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
         }
         else {
-          var texte = "<b>Bloqué par une clé</b><br>Indice :<br>" + r[0]["indice"] + "<br><br><form id='form4' action='#' name='indice4' method='post'><input type='submit' name='envoi2' id='envoi2' value='Nouvel indice'></form>";
+          var texte = "<b>Bloqué par un objet</b><br>Indice :<br>" + r[0]["indice"] + "<br><br><form id='form4' action='#' name='indice4' method='post'><input type='submit' name='envoi2' id='envoi2' value='Nouvel indice'></form>";
           var popup = image.bindPopup(texte).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
           var form4 = document.getElementById("form4");
           form4.addEventListener("submit" , function(event) {indice2(image , event , click2)});
@@ -177,6 +184,7 @@ function action2(image , event , click2 , fin) {
     })
 }
 
+// Fonction permettant d'afficher un deuxième indice
 function indice2 (image , e , click2) {
   e.preventDefault();
   var liste = afficher.getLayers();
@@ -216,14 +224,14 @@ function indice2 (image , e , click2) {
         }
         else {
           if (r[0]["temps3"] == 0) {
-            var texte = "<b>Bloqué par une clé</b><br>Indice 1:<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"];
+            var texte = "<b>Bloqué par un objet</b><br>Indice 1:<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"];
             var popup = image.bindPopup(texte).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
           }
           else {
             image.removeEventListener("click" , click2);
             var date = new Date().getTime();
             var fin = date + r[0]["temps3"] * 60 * 1000
-            var texte = "<b>Bloqué par une clé</b><br>Indice 1:<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"] + "<br><br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)";
+            var texte = "<b>Bloqué par un objet</b><br>Indice 1:<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"] + "<br><br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)";
             var popup = image.bindPopup(texte).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
             var click3 = function click() {action3(this , event , click3 , fin)};
             image.addEventListener("click" , click3)
@@ -237,6 +245,7 @@ function indice2 (image , e , click2) {
     })
 }
 
+// Fonction permettant d'afficher le temps restant avant l'affichage du dernier indice
 function action3(image , event , click3 , fin) {
   var liste = afficher.getLayers();
   for (var i = 0 ; i < liste.length; i++) {
@@ -272,19 +281,20 @@ function action3(image , event , click3 , fin) {
           cle(image , r[0]["indice"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["bloque_par"] , r[0]["suivant"] , r[0]["temps2"]);
         }
         else if (fin - date <= 0) {
-          var texte = "<b>Bloqué par une clé</b><br>Indice :<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"] + "<br><form id='form5' action='#' name='indice5' method='post'><input type='submit' name='envoi3' id='envoi3' value='Nouvel indice'></form>"
+          var texte = "<b>Bloqué par un objet</b><br>Indice :<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"] + "<br><form id='form5' action='#' name='indice5' method='post'><input type='submit' name='envoi3' id='envoi3' value='Nouvel indice'></form>"
           var popup = image.bindPopup(texte).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
           var form5 = document.getElementById("form5");
           form5.addEventListener("submit" , function(event) {indice3(image , event)});
         }
         else {
-          var texte = "<b>Bloqué par une clé</b><br>Indice 1:<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"] + "<br><br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)";
+          var texte = "<b>Bloqué par un objet</b><br>Indice 1:<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"] + "<br><br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)";
           var popup = image.bindPopup(texte).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
         }
       }
     })
 }
 
+// Fonction permettant d'afficher le dernier indice
 function indice3 (image , e) {
   e.preventDefault();
   var liste = afficher.getLayers();
@@ -312,13 +322,14 @@ function indice3 (image , e) {
           cle(image , r[0]["indice"] , r[0]["latitude"] , r[0]["longitude"] , r[0]["latitude_2"] , r[0]["longitude_2"] , r[0]["bloque_par"] , r[0]["suivant"] , r[0]["temps2"]);
         }
         else {
-          var texte = "<b>Bloqué par une clé</b><br>Indice 1:<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"] + "<br><br>Indice final:<br>" + r[0]["indice_final"];
+          var texte = "<b>Bloqué par un objet</b><br>Indice 1:<br>" + r[0]["indice"] + "<br><br>Indice 2:<br>" + r[0]["indice2"] + "<br><br>Indice final:<br>" + r[0]["indice_final"];
           var popup = image.bindPopup(texte).openPopup([(r[0]["latitude"]+r[0]["latitude_2"])/2,(r[0]["longitude"]+r[0]["longitude_2"])/2]);
         }
       }
     })
 }
 
+// Fonction permettant de récupérer le bon code à taper et le code rentré par l'utilisateur
 function cadenas(bloque_par , texte , suivant , image) {
   var data = new FormData();
   data.append("ID",bloque_par);
@@ -333,6 +344,7 @@ function cadenas(bloque_par , texte , suivant , image) {
     })
 }
 
+// Fonction permettant de vérifier si le code taper par l'utilisateur est le bon
 function verif(code , texte , e , suivant , image , click) {
   e.preventDefault();
   var code1 = form.elements["code1"];
@@ -480,7 +492,7 @@ function cle(image , indice , latitude , longitude , latitude_2 , longitude_2 , 
       image.removeEventListener("click" , click);
       var date = new Date().getTime();
       var fin = date + temps2 * 60 * 1000
-      var texte = "<b>Bloqué par une clé</b><br>Indice :<br>" + indice + "<br><br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)"
+      var texte = "<b>Bloqué par un objet</b><br>Indice :<br>" + indice + "<br><br>Un indice supplémentaire vous sera donné dans " + Math.trunc((fin - date) /1000) + " secondes (Veuillez re-cliquer sur l'image une fois le temps écoulé)"
       var popup = image.bindPopup(texte).openPopup([(latitude+latitude_2)/2,(longitude+longitude_2)/2]);
       var click2 = function click() {action2(this , event , click2 , fin)};
       image.addEventListener("click" , click2)
@@ -489,6 +501,7 @@ function cle(image , indice , latitude , longitude , latitude_2 , longitude_2 , 
 }
 
 
+//Fonction permettant de récupérer un objet récupérable
 function recuperer(image , icone) {
   var img = document.createElement("img");
   img.src = icone;
@@ -505,6 +518,7 @@ function recuperer(image , icone) {
   affichage();
 }
 
+// Fonction permettant de sélectionner un objet déjà récupéré
 function selectionner(img , id_img) {
   for (var i = 0 ; i < selection.length; i++) {
     selection[i].classList.remove("selection");
@@ -520,6 +534,7 @@ function selectionner(img , id_img) {
   img.addEventListener("click" , function() {deselectionner(this , id_img)});
 }
 
+// Fonction permettant de désélectionner un objet déjà sélectionné
 function deselectionner(img , id_img) {
   img.classList.remove("selection");
   img.removeEventListener("click" , function() {deselectionner(this , id_img)});
@@ -528,6 +543,7 @@ function deselectionner(img , id_img) {
   id_selection = 0;
 }
 
+// Fonction permettant de récupérer un indice récupérable
 function recuperer_texte(image , icone , indice) {
   var img = document.createElement("img");
   img.src = icone;
@@ -539,11 +555,13 @@ function recuperer_texte(image , icone , indice) {
   para.innerHTML = indice;
 }
 
+// Fonction permettant d'afficher l'indice d'un indice récupérable
 function info(indice) {
   para = document.getElementById("indice_p");
   para.innerHTML = indice;
 }
 
+// Fonction permettant d'afficher le temps écoulé depuis le début du jeu
 function time() {
   temps_aff = document.getElementById("temps")
   var actuel = new Date().getTime();
