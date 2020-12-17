@@ -6,6 +6,7 @@ var id = [];
 var recuperable = document.getElementById("recuperable");
 var selection = [];
 var id_selection = 0;
+var selection_texte = [];
 var depart = new Date().getTime();
 time();  // Lancement du chrono
 
