@@ -1,5 +1,5 @@
 <?php
-$link = mysqli_connect("localhost:3306","root","root","objet");
+$link = mysqli_connect("localhost:3306","root","root","tour_eiffel");
 if (!$link) {
   die('Erreur de connexion');
 }
