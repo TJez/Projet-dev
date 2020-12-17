@@ -19,7 +19,11 @@ img {
 }
 
 .selection {
-  border: 1px solid blue;
+  border: 2px solid blue;
+}
+
+.selection_texte{
+  border: 2px solid red;
 }
 
 #indice_p{
