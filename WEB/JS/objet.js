@@ -1,6 +1,9 @@
 // Définition des variables globales
 var mymap = L.map('map').setView([47,2], 8);
 var afficher = L.featureGroup();
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(mymap);
 var zoom_aff = [];
 var id = [];
 var recuperable = document.getElementById("recuperable");
@@ -48,20 +51,25 @@ function suppression_image (image) {
     }
   }
   afficher.removeLayer(image);
+  mymap.removeLayer(image);
 }
 
 // Fonction permettant d'actualiser la carte avec la nouvelle liste d'image à afficher
 function affichage() {
   var liste = afficher.getLayers();
-  mymap.eachLayer(function(layer){
-    mymap.removeLayer(layer);
-  })
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(mymap);
   for (var i = 0 ; i < liste.length; i++) {
     if (mymap.getZoom() >= zoom_aff[i]) {
-      liste[i].addTo(mymap);
+      if (mymap.hasLayer(liste[i])) {
+        //On ne fait rien
+      }
+      else {
+        liste[i].addTo(mymap);
+      }
+    }
+    else {
+      if (mymap.hasLayer(liste[i])) {
+        mymap.removeLayer(liste[i]);
+      }
     }
   }
 }
