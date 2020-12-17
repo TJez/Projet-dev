@@ -545,18 +545,30 @@ function deselectionner(img , id_img) {
 
 // Fonction permettant de récupérer un indice récupérable
 function recuperer_texte(image , icone , indice) {
+  for (var i = 0 ; i < selection_texte.length; i++) {
+    selection_texte[i].classList.remove("selection_texte");
+    selection_texte.splice(selection_texte[i],1);
+  }
   var img = document.createElement("img");
   img.src = icone;
-  img.addEventListener("click" , function() {info(indice)});
+  img.addEventListener("click" , function() {info(this , indice)});
   recuperable.appendChild(img);
   suppression_image(image);
   affichage();
+  img.classList.add("selection_texte");
+  selection_texte.push(img);
   para = document.getElementById("indice_p");
   para.innerHTML = indice;
 }
 
 // Fonction permettant d'afficher l'indice d'un indice récupérable
-function info(indice) {
+function info(img , indice) {
+  for (var i = 0 ; i < selection_texte.length; i++) {
+    selection_texte[i].classList.remove("selection_texte");
+    selection_texte.splice(selection_texte[i],1);
+  }
+  img.classList.add("selection_texte");
+  selection_texte.push(img);
   para = document.getElementById("indice_p");
   para.innerHTML = indice;
 }
